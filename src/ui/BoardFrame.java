@@ -59,7 +59,7 @@ public class BoardFrame extends JFrame implements ActionListener, MouseListener 
 	private JPanel rightPanel;
 	public BoardCanvas boardCanvas;
 	private GameOfCluedo game;
-	private Square selected;
+	public Square selected;
 	
 	public ArrayList<JButton> buttons;
 	public JLabel profile;
@@ -157,6 +157,7 @@ public class BoardFrame extends JFrame implements ActionListener, MouseListener 
 		getContentPane().add(rightPanel, BorderLayout.EAST);
 		
 		boardCanvas = new BoardCanvas();
+		boardCanvas.addMouseListener(this);
 		add(boardCanvas, BorderLayout.CENTER);
 		this.setVisible(true);
 	}
@@ -218,10 +219,12 @@ public void updateCards(Player player){
 	}
 	
 	public void drawTokens(Graphics g){
-		for(int x = 0; x < 24; x++){
+		for(int x = 0; x < 25; x++){
 			for(int y = 0; y < 25; y++){
-				if(boardCanvas.squares[x][y].hasPiece()){
+				if(boardCanvas.squares[x][y] != null&&boardCanvas.squares[x][y].hasPiece()){
+					
 					String colour = boardCanvas.squares[x][y].getPiece().colour;
+				
 					Image img = null;
 					try {
 						img = ImageIO.read(new File("src/images/"+colour+".png"));
@@ -229,22 +232,16 @@ public void updateCards(Player player){
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					g.drawImage(img, x * 25, y*25, 23, 23, null);
+					g.drawImage(img, x * 25 + 3, y*25 + 3, 20, 20, null);
 				}
 				}
 		}
 		}
+	
+
 
 	
-	
-	public static void main(String[] args) {
-		BoardFrame frame = new BoardFrame();
-		Player p = new Player("andre", null, null );
-		p.addCard(frame.getBoard().getCharacter("MISS_SCARLETT"));
-		p.addCard(frame.getBoard().getWeapon("DAGGER"));
-		p.addCard(frame.getBoard().getRoom("LOUNGE"));
-		frame.updateCards(p);
-	}
+
 	
 	public GameOfCluedo getGame() {
 		return game;
@@ -276,18 +273,20 @@ public void updateCards(Player player){
 		}
 
 	}
-	
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		if(!Main.start){
 		int x = e.getX();
 		int y = e.getY();
-		x = x/35;
-		y = y/35;
-		
+		x = x/25;
+		y = y/25;
 		if (boardCanvas.squares[x][y] != null){
-			selected = boardCanvas.squares[x][y];
+			this.selected = boardCanvas.squares[x][y];
+			boardCanvas.setSelected(selected);
+			boardCanvas.repaint();
+			repaint();
 		}
-		
+		}
 	}
 
 	@Override

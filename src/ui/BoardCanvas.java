@@ -28,9 +28,9 @@ public class BoardCanvas extends Canvas{
 		
 		for(int x = 0; x < 24; x++){
 			for(int y = 0; y < 25; y++){
-				if(map[x][y].equals("x") || map[x][y].equals("s")){
+					if(map[x][y].equals("x")||map[x][y].equals("s"))
 					squares[x][y] = new Square(new Point(x,y));
-				}
+				
 			}
 		}
 		
@@ -74,6 +74,7 @@ public class BoardCanvas extends Canvas{
 	}
 	
 	public void drawSelected(Graphics g, Square s){
+		
 		g.setColor(Color.MAGENTA);
 		Point p = s.point;
 		g.drawRect(p.x*25, p.y*25, squareSize, squareSize);
@@ -126,7 +127,7 @@ public class BoardCanvas extends Canvas{
 			g.fillRect(x*25, 10*25, squareSize, squareSize);
 		}
 		//Billiard Room
-		for(int x = 18; x <= 23; x++){
+		for(int x = 19; x <= 23; x++){
 			for(int y = 8; y <= 12; y++){
 				g.fillRect(x*25, y*25, squareSize, squareSize);
 			}
@@ -162,12 +163,12 @@ public class BoardCanvas extends Canvas{
 			}
 		}
 		//Cellar
-		BufferedImage img = null;
-		try {
-			img = ImageIO.read(new File("src/images/cluedo.png"));
-		} catch (IOException e) {
-		}
-		g.drawImage(img, 10*25, 10*25, 5*25, 7*25, null);
+				BufferedImage img = null;
+				try {
+					img = ImageIO.read(new File("src/images/cluedo.png"));
+				} catch (IOException e) {
+				}
+				g.drawImage(img, 10*25, 10*25, 5*25, 7*25, null);
 		
 		//draws walls
 		g.setColor(Color.GREEN);
@@ -186,6 +187,7 @@ public class BoardCanvas extends Canvas{
 		g.fillRect(6*25, 24*25, squareSize, squareSize);
 		g.fillRect(8*25, 24*25, squareSize, squareSize);
 		g.fillRect(15*25, 24*25, squareSize, squareSize);
+		g.fillRect(23*25, 7*25, squareSize, squareSize);
 		for(int x = 0; x <= 23; x++){
 			g.fillRect(x*25, 0, squareSize, squareSize);
 		}
@@ -197,7 +199,15 @@ public class BoardCanvas extends Canvas{
 		g.fillRect(22*25, 5*25, squareSize, squareSize);
 		g.fillRect(23*25, 21*25, squareSize, squareSize);
 		
-		
+		//draws starting spaces
+		g.setColor(Color.GRAY);
+		g.fillRect(9*25, 0, squareSize, squareSize);
+		g.fillRect(14*25, 0, squareSize, squareSize);
+		g.fillRect(23*25, 6*25, squareSize, squareSize);
+		g.fillRect(0, 17*25, squareSize, squareSize);
+		g.fillRect(23*25, 19*25, squareSize, squareSize);
+		g.fillRect(7*25, 24*25, squareSize, squareSize);
+		g.fillRect(23*25, 19*25, squareSize, squareSize);
 		
 		//draws doors
 		g.setColor(new Color(102, 51, 0));
@@ -212,7 +222,7 @@ public class BoardCanvas extends Canvas{
 		g.fillRect(7*25, 12*25, squareSize, squareSize); 
 		g.fillRect(6*25, 16*25, squareSize, squareSize); 
 		
-		g.fillRect(18*25, 9*25, squareSize, squareSize); 
+		g.fillRect(19*25, 9*25, squareSize, squareSize); 
 		g.fillRect(22*25, 12*25, squareSize, squareSize);
 		
 		g.fillRect(20*25, 14*25, squareSize, squareSize); 

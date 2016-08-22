@@ -12,6 +12,7 @@ import items.Character;
 import items.Room;
 import items.Weapon;
 import items.Character.CharacterToken;
+import items.Piece;
 import items.Room.RoomToken;
 import items.Weapon.WeaponToken;
 
@@ -31,9 +32,21 @@ public class Board {
 	private List<Room> rooms; 
 	public Map<Point, String> entrances; //contains the Points that allow access into Rooms 
 	
+	public ArrayList<Piece> pieces;
+	
 	//although already in GameOfCluedo, used here due to size of cards in Game reduced by 3 because of the Envelope Class
 	List<Character> characters; 
 	List<Weapon> weapons;
+	
+	public Map<String, ArrayList<Point>> lounge;
+	public Map<String, ArrayList<Point>> kitchen;
+	public Map<String, ArrayList<Point>> ballroom;
+	public Map<String, ArrayList<Point>> conservatory;
+	public Map<String, ArrayList<Point>> billiardroom;
+	public Map<String, ArrayList<Point>> library;
+	public Map<String, ArrayList<Point>> study;
+	public Map<String, ArrayList<Point>> hall;
+	public Map<String, ArrayList<Point>> diningroom;
 	
 	
 	/**
@@ -63,31 +76,32 @@ public class Board {
 		// s meaning a Player, x meaning a Point a Player can move to, / meaning cannot move to
 		
 		String input = 
-						  "/ / / / / / / / / s / /  / / s / / / / / / / / / \n"
-						+ "/ / / / / / / x x x / /  / / x x x / / / / / / / \n"
-						+ "/ / / / / / x x / / / /  / / / / x x / / / / / / \n"
-						+ "/ / / / / / x x / / / /  / / / / x x / / / / / / \n"
-						+ "/ / / / / / x x / / / /  / / / / x x / / / / / / \n"
-						+ "/ / / / / / x x / / / /  / / / / x x x / / / / / \n"
-						+ "/ / / / / / x x / / / /  / / / / x x x x x x x s \n"
-						+ "/ x x x x x x x / / / /  / / / / x x x x x x x / \n"
-						+ "x x x x x x x x x x x x  x x x x x x / / / / / / \n"
-						+ "/ x x x x x x x x x x x  x x x x x x / / / / / / \n"
-						+ "/ / / / / / x x x x / /  / / / x x x / / / / / / \n"
-						+ "/ / / / / / / / x x / /  / / / x x x / / / / / / \n"
-						+ "/ / / / / / / / x x / /  / / / x x x / / / / / / \n"
-						+ "/ / / / / / / / x x / /  / / / x x x x x x x x / \n"
-						+ "/ / / / / / / / x x / /  / / / x x x / / / / / / \n"
-						+ "/ / / / / / / / x x / /  / / / x x / / / / / / / \n"
-						+ "/ x x x x x x x x x / /  / / / x x / / / / / / / \n"
-						+ "s x x x x x x x x x x x  x x x x x / / / / / / / \n"
-						+ "/ x x x x x x x x / / /  / / / x x x / / / / / / \n"
-						+ "/ / / / / / / x x / / /  / / / x x x x x x x x s \n"
-						+ "/ / / / / / / x x / / /  / / / x x x x x x x x / \n"
-						+ "/ / / / / / / x x / / /  / / / x x / / / / / / / \n"
-						+ "/ / / / / / / x x / / /  / / / x x / / / / / / / \n"
-						+ "/ / / / / / / x x / / /  / / / x x / / / / / / / \n"
-						+ "/ / / / / / / s / / / /  / / / / x / / / / / / / \n";
+							  "/ / / / / / / / / s / /  / / s / / / / / / / / / \n"
+							+ "/ / / / / / / x x x / /  / / x x x / / / / / / / \n"
+							+ "/ / / / / / x x / / / /  / / / / x x / / / / / / \n"
+							+ "/ / / / / / x x / / / /  / / / / x x / / / / / / \n"
+							+ "/ / / / / / x x / / / /  / / / / x x / / / / / / \n"
+							+ "/ / / / / / x x / / / /  / / / / x x x / / / / / \n"
+							+ "/ / / / / / x x / / / /  / / / / x x x x x x x s \n"
+							+ "/ x x x x x x x / / / /  / / / / x x x x x x x / \n"
+							+ "x x x x x x x x x x x x  x x x x x x / / / / / / \n"
+							+ "/ x x x x x x x x x x x  x x x x x x / / / / / / \n"
+							+ "/ / / / / / x x x x / /  / / / x x x / / / / / / \n"
+							+ "/ / / / / / / / x x / /  / / / x x x / / / / / / \n"
+							+ "/ / / / / / / / x x / /  / / / x x x / / / / / / \n"
+							+ "/ / / / / / / / x x / /  / / / x x x x x x x x / \n"
+							+ "/ / / / / / / / x x / /  / / / x x x / / / / / / \n"
+							+ "/ / / / / / / / x x / /  / / / x x / / / / / / / \n"
+							+ "/ x x x x x x x x x / /  / / / x x / / / / / / / \n"
+							+ "s x x x x x x x x x x x  x x x x x / / / / / / / \n"
+							+ "/ x x x x x x x x / / /  / / / x x x / / / / / / \n"
+							+ "/ / / / / / / x x / / /  / / / x x x x x x x x s \n"
+							+ "/ / / / / / / x x / / /  / / / x x x x x x x x / \n"
+							+ "/ / / / / / / x x / / /  / / / x x / / / / / / / \n"
+							+ "/ / / / / / / x x / / /  / / / x x / / / / / / / \n"
+							+ "/ / / / / / / x x / / /  / / / x x / / / / / / / \n"
+							+ "/ / / / / / / s / / / /  / / / / x / / / / / / / \n";
+
 
 		
 		/*
@@ -125,7 +139,14 @@ public class Board {
 		startingPositions.add(new Point(23,6));
 		startingPositions.add(new Point(23,19));
 
-
+		pieces = new ArrayList<Piece>();
+		pieces.add(new Piece("Miss Scarlett"));
+		pieces.add(new Piece("Colonel Mustard"));
+		pieces.add(new Piece("Mrs White"));
+		pieces.add(new Piece("The Reverend Green"));
+		pieces.add(new Piece("Mrs Peacock"));
+		pieces.add(new Piece("Professor Plum"));
+		
 
 		rooms.add(new Room(RoomToken.DINING_ROOM));
 		rooms.add(new Room(RoomToken.HALL));
@@ -143,9 +164,9 @@ public class Board {
 		tokenToPos.put("Miss Scarlett", new Point(7,24));
 		tokenToPos.put("Colonel Mustard", new Point(0,17));
 		tokenToPos.put("Mrs White", new Point(9,0));
-		tokenToPos.put("The Reverend Green", new Point(15,0));
-		tokenToPos.put("Mrs Peacock", new Point(24,6));
-		tokenToPos.put("Professor Plum", new Point(24,19));
+		tokenToPos.put("The Reverend Green", new Point(14,0));
+		tokenToPos.put("Mrs Peacock", new Point(23,6));
+		tokenToPos.put("Professor Plum", new Point(23,19));
 
 
 		entrances.put(new Point(4, 7), "KITCHEN");
@@ -154,7 +175,7 @@ public class Board {
 		entrances.put(new Point(17, 20), "STUDY");
 		entrances.put(new Point(8, 12), "DINING_ROOM");
 		entrances.put(new Point(6, 16), "DINING_ROOM");
-		entrances.put(new Point(17, 8), "BILLIARD_ROOM");
+		entrances.put(new Point(17,8), "BILLIARD_ROOM");
 		entrances.put(new Point(22, 12), "BILLIARD_ROOM");
 		entrances.put(new Point(20, 12), "LIBRARY");
 		entrances.put(new Point(16, 15), "LIBRARY");
@@ -165,6 +186,9 @@ public class Board {
 		entrances.put(new Point(11, 17), "HALL");
 		entrances.put(new Point(12, 17), "HALL");
 		entrances.put(new Point(15, 20), "HALL");
+		
+	
+		
 	}
 	
 	/**
@@ -261,6 +285,18 @@ public class Board {
 		return board;
 
 	}
+	
+	public Piece getPiece(String p){
+		for(Piece piece : pieces){
+			if(piece.token.equals(p)){
+				return piece;
+			}
+			
+		}
+		return null;
+	}
+	
+	
 	
 	/**
 	 * Print out Positions of the Players
