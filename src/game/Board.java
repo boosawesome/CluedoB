@@ -2,6 +2,7 @@ package game;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -38,16 +39,7 @@ public class Board {
 	List<Character> characters; 
 	List<Weapon> weapons;
 	
-	public Map<String, ArrayList<Point>> lounge;
-	public Map<String, ArrayList<Point>> kitchen;
-	public Map<String, ArrayList<Point>> ballroom;
-	public Map<String, ArrayList<Point>> conservatory;
-	public Map<String, ArrayList<Point>> billiardroom;
-	public Map<String, ArrayList<Point>> library;
-	public Map<String, ArrayList<Point>> study;
-	public Map<String, ArrayList<Point>> hall;
-	public Map<String, ArrayList<Point>> diningroom;
-	
+	public Map<String, ArrayList<Point>> roomSpaces;	
 	
 	/**
 	 * Constructs a Board Object
@@ -187,8 +179,19 @@ public class Board {
 		entrances.put(new Point(12, 17), "HALL");
 		entrances.put(new Point(15, 20), "HALL");
 		
-	
+		roomSpaces = new HashMap<String, ArrayList<Point>>();
 		
+		//slots in rooms that a token or weapon object can occupy
+		roomSpaces.put("LOUNGE", new ArrayList<Point>(Arrays.asList(new Point(0,24), new Point(1,24), new Point(2,24), new Point(3,24), new Point(4,24), new Point(5,24))));
+		roomSpaces.put("KITCHEN", new ArrayList<Point>(Arrays.asList(new Point(0,0), new Point(1,0), new Point(2,0), new Point(3,0), new Point(4,0), new Point(0,1))));
+		roomSpaces.put("CONSERVATORY", new ArrayList<Point>(Arrays.asList(new Point(19,0), new Point(20,0), new Point(21,0), new Point(22,0), new Point(23,0), new Point(19,1))));
+		roomSpaces.put("STUDY", new ArrayList<Point>(Arrays.asList(new Point(19,24), new Point(20,24), new Point(21,24), new Point(22,24), new Point(23,24), new Point(24,24))));
+		roomSpaces.put("DINING_ROOM", new ArrayList<Point>(Arrays.asList(new Point(0,9), new Point(0,10), new Point(0,11), new Point(0,12), new Point(0,13), new Point(0,14))));
+		roomSpaces.put("HALL", new ArrayList<Point>(Arrays.asList(new Point(9,23), new Point(10,23), new Point(11,23), new Point(12,23), new Point(13,23), new Point(14,23))));
+		roomSpaces.put("BILLIARD_ROOM", new ArrayList<Point>(Arrays.asList(new Point(24,8), new Point(24,9), new Point(24,10), new Point(24,11), new Point(24,12))));
+		roomSpaces.put("BALLROOM", new ArrayList<Point>(Arrays.asList(new Point(8,2), new Point(9,2), new Point(10,2), new Point(11,2), new Point(12,2), new Point(13,2))));
+		roomSpaces.put("LIBRARY", new ArrayList<Point>(Arrays.asList(new Point(14,23), new Point(15,23), new Point(16,23), new Point(17,23), new Point(18,23))));
+	
 	}
 	
 	/**

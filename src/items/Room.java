@@ -1,5 +1,7 @@
 package items;
 
+import game.Board;
+
 /***
  * Represents a Room Card in the Cluedo Game. This class implements Card Interface,
  * 
@@ -26,6 +28,7 @@ public class Room implements Card{
 		STUDY
 	}
 
+	public int capacity = 0;
 	private RoomToken token;
 	private RoomToken opposite = null; // a room may have a connection to another room
 	public String picture;

@@ -33,14 +33,17 @@ import game.Player;
 import items.Card;
 import items.Dice;
 import items.Piece;
+import items.Room;
 
 public class Main {
 
+	public static int currentRoll;
 	public static int turn;
 	public static Dice dice;
 	public static boolean start = true;
 	public static boolean endTurn = false;
 	public static int playerNum = 0;
+	public static boolean enter = false;
 
 	public static int inputNumber(BoardFrame frame, String message){
 
@@ -110,6 +113,7 @@ public class Main {
 			//initialize player 
 			Point point = game.getBoard().tokenToPos.get(s);
 			Piece piece = game.getBoard().getPiece(s);
+			piece.setPoint(point);
 			Player p = new Player(name, piece, point);
 			p.num = i;
 			players.add(p);
@@ -120,26 +124,60 @@ public class Main {
 
 	}
 
-	public static void movePlayer(BoardFrame frame, Player player, int roll){
+	public static void movePlayer(BoardFrame frame, Player player){
 		//game.movePlayer(roll, d, p, players);
 		//user selects a square
 		//check if square is within roll range
 		//if it is, checks if x or y is greater, if x is greater move x spaces first then y else y spaces first
-		
-		
-		while(roll > 0){
-			double px = player.getLocation().getX();
-			double py = player.getLocation().getY();
-			
-			
-			
-			
-			roll--;
-			frame.repaint();
+
+
+		if(frame.selected != null){
+			while(currentRoll > 0){
+				double px = player.getToken().getPoint().getX();
+				double py = player.getToken().getPoint().getY();
+
+				double dx = frame.selected.point.x; 
+				double dy = frame.selected.point.y;
+
+				int diffX = (int) Math.abs(dx - px);
+				int diffY = (int) Math.abs(dy - py);
+
+				if(frame.boardCanvas.squares[(int)dx][(int)dy].hasPiece()){
+					return;
+				}
+
+				if(diffX + diffY > currentRoll && !start){
+					JOptionPane.showMessageDialog(frame, "Your roll does not take you that far!");
+					frame.boardCanvas.deselect = true;
+					frame.selected = null;
+					frame.drawTokens(frame.boardCanvas.getGraphics());
+					return;
+				}else if(diffX + diffY > currentRoll){
+					JOptionPane.showMessageDialog(frame, "Your roll does not take you that far!");
+					frame.boardCanvas.deselect = true;
+					frame.selected = null;
+					frame.drawTokens(frame.boardCanvas.getGraphics());
+					return;
+				}else if(diffX + diffY == 0){
+					frame.drawTokens(frame.boardCanvas.getGraphics());
+					return;
+				}else if(diffX + diffY <= currentRoll) {
+
+					player.getToken().setPoint(new Point((int)dx, (int)dy));
+					frame.boardCanvas.squares[(int)dx][(int)dy].setPiece(player.getToken());
+					frame.boardCanvas.squares[(int)px][(int)py].setPiece(null);
+					frame.repaint();
+					frame.drawTokens(frame.boardCanvas.getGraphics());
+					frame.updateCards(player);
+					currentRoll -= (diffX + diffY);
+				}
+
+				break;
+			}
 		}
-		
 
 	}
+
 
 	public static void setupButtons(BoardFrame frame){
 
@@ -159,8 +197,8 @@ public class Main {
 		}
 
 	}
-	
-	
+
+
 
 	private static void playerOptions(String action,BoardFrame frame) {
 
@@ -178,13 +216,24 @@ public class Main {
 				JOptionPane.showMessageDialog(frame, "Cannot roll the Dice Again!!!");
 				return;
 			}
+
+			frame.boardCanvas.deselect = false;
+			currentRoll = dice.roll();
+			JOptionPane.showMessageDialog(frame, "		"+frame.getGame().currentPlayer.getName()+" rolls a "+currentRoll+"\n Please Select a Space to Move");
+
+			movePlayer(frame, frame.getGame().currentPlayer);
 			start = false;
-			int roll = dice.roll();
-			JOptionPane.showMessageDialog(frame, frame.getGame().currentPlayer.getName()+" rolls a "+roll);
-			movePlayer(frame, frame.getGame().currentPlayer, roll);
 
 		}else if(action.equals("endTurn")){
+			if(currentRoll > 0){
+				JOptionPane.showMessageDialog(frame, "You have "+ currentRoll+ " Moves Left!!!");
+				return;
+			}
 			endTurn = true;
+			frame.boardCanvas.deselect = true;
+			frame.boardCanvas.setSelected(frame.selected);
+			frame.boardCanvas.repaint();
+
 		}
 
 
@@ -358,7 +407,7 @@ public class Main {
 		Set<Piece> pieces = new HashSet<Piece>();
 
 		pieces.addAll(game.getBoard().pieces);
-
+		
 		for(Player play : players){
 			pieces.add(play.getToken());
 		}
@@ -366,7 +415,10 @@ public class Main {
 		initializeTokens(frame, pieces);
 
 		while(1 == 1){
-
+			
+			JOptionPane.showMessageDialog(frame, 
+					"*********************************\n\t\t\t\tTURN"+turn+" \n*********************************\n",
+					"", JOptionPane.INFORMATION_MESSAGE);
 
 			for(int n = 0; n < players.size(); n++){
 				start = true;
@@ -376,8 +428,26 @@ public class Main {
 					frame.updateCards(game.currentPlayer);
 					frame.repaint();
 
-
-
+					if(!start){
+						
+						movePlayer(frame, game.currentPlayer);
+					
+						if(game.isAtDoor(game.currentPlayer) && game.currentPlayer.getRoom() == null){
+							Point point = game.getDoor(game.currentPlayer);
+							String rmName = game.getBoard().getRoom(point);
+							Room room = game.getBoard().getRoom(rmName);
+							int answer = JOptionPane.showConfirmDialog(frame, "Do you want to enter "+rmName+"?");
+							
+							if(answer == JOptionPane.YES_OPTION){
+								currentRoll = 0;
+								game.currentPlayer.setRoom(room);
+								enterRoom(frame, game.currentPlayer);
+							}
+							
+							
+						}
+						
+					}
 					frame.drawTokens(frame.boardCanvas.getGraphics());
 
 				}
@@ -403,6 +473,41 @@ public class Main {
 
 
 
+	}
+
+	private static void enterRoom(BoardFrame frame, Player currentPlayer) {
+		int x = currentPlayer.getToken().getPoint().x;
+		int y = currentPlayer.getToken().getPoint().y;
+		Square s = frame.boardCanvas.squares[x][y];
+		Piece token = currentPlayer.getToken();
+		
+		if(s.hasPiece()){
+			s.setPiece(null);
+		
+		Room r = currentPlayer.getRoom();
+		
+		ArrayList<Point> spaces = frame.getBoard().roomSpaces.get(r.getName());
+		
+		for(int i = 0; i < spaces.size(); i++){
+			
+			if(r.capacity == i){
+			token.setPoint(spaces.get(i));
+			r.capacity++;
+			break;
+			}
+		}
+		
+		
+		
+		
+		
+		}
+		
+		
+		
+		
+		
+		
 	}
 
 

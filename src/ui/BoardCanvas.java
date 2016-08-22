@@ -22,6 +22,8 @@ public class BoardCanvas extends Canvas{
 	Square[][] squares;
 	String[][] map = Board.map;
 	
+	public boolean deselect = false;
+	
 	public BoardCanvas(){
 		this.setBackground(Color.BLACK);
 		squares = new Square[numSquare][numSquare];
@@ -76,6 +78,7 @@ public class BoardCanvas extends Canvas{
 	public void drawSelected(Graphics g, Square s){
 		
 		g.setColor(Color.MAGENTA);
+		if(deselect) g.setColor(Color.BLACK);
 		Point p = s.point;
 		g.drawRect(p.x*25, p.y*25, squareSize, squareSize);
 	}

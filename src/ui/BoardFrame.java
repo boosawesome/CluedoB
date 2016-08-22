@@ -1,7 +1,6 @@
 package ui;
 
 import java.awt.BorderLayout;
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -9,17 +8,16 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -28,30 +26,18 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
 
 import main.GameOfCluedo;
-import moves.Accusation;
-import moves.Suggestion;
-
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.border.Border;
 
 import game.Board;
 import game.Player;
 import items.Card;
+import items.Piece;
 
 import java.awt.Component;
 
 import javax.imageio.ImageIO;
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
 
 public class BoardFrame extends JFrame implements ActionListener, MouseListener {
 
@@ -74,7 +60,7 @@ public class BoardFrame extends JFrame implements ActionListener, MouseListener 
 		buttons  = new ArrayList<JButton>();
 		this.setSize(1008, 778);
 		this.setMinimumSize(new Dimension(600, 500)); //855 without rightPanel
-		setResizable(false);
+		setResizable(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		JMenuBar menuBar = new JMenuBar();
@@ -96,7 +82,7 @@ public class BoardFrame extends JFrame implements ActionListener, MouseListener 
 
 		bottomPanel = new JPanel();
 		FlowLayout flow = new FlowLayout();
-		flow.setHgap(150);
+		flow.setHgap(150); 
 		bottomPanel.setLayout(flow);
 		bottomPanel.setPreferredSize(new Dimension(855, 100));
 		bottomPanel.setMinimumSize(new Dimension(855, 100));
@@ -182,21 +168,19 @@ public void updateCards(Player player){
 			bottomPanel.repaint();
 			
 		}
-		
-
+			String moves = "Moves left: "+Main.currentRoll;
+			
+			String loc = player.getRoom() == null?player.getToken().getPoint().getX() +"," +player.getToken().getPoint().getY() : player.getRoom().getName();
+			
 			String info = "<html>Player"
 			+player.num+ " Info<br>"
 					+ "Name: " + player.getName()
 					+ "<br>Token: " + player.getToken().token+" ("+ player.getToken().colour+")<br>"
-					+ "Location: " + player.getLocation().getX() +"," +player.getLocation().getY()+"</html>";
+					+ "Location: " + loc +"<br>"+moves+"</html>";
 		
 		
 		
 		profile.setText(info);
-		
-		int x = (int)player.getLocation().getX();
-		int y = (int) player.getLocation().getY();
-		
 		
 	}
 	
@@ -288,7 +272,9 @@ public void updateCards(Player player){
 		}
 		}
 	}
+	
 
+		
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub

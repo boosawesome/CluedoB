@@ -222,7 +222,7 @@ public class GameOfCluedo {
 	 */
 	public boolean isAtDoor(Player p){
 		for(Map.Entry<Point, String> entry : board.entrances.entrySet()){
-			if(entry.getKey().getX() == p.getLocation().getX() && entry.getKey().getY() == p.getLocation().getY()){
+			if(entry.getKey().getX() == p.getToken().getPoint().getX() && entry.getKey().getY() == p.getToken().getPoint().getY()){
 				return true;
 			}
 		}
@@ -236,7 +236,7 @@ public class GameOfCluedo {
 	 */
 	public Point getDoor(Player p){
 		for(Map.Entry<Point, String> entry : board.entrances.entrySet()){
-			if(entry.getKey().getX() == p.getLocation().getX() && entry.getKey().getY() == p.getLocation().getY()){
+			if(entry.getKey().getX() == p.getToken().getPoint().getX() && entry.getKey().getY() == p.getToken().getPoint().getY()){
 				return entry.getKey();
 			}
 		}

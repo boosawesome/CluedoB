@@ -37,7 +37,7 @@ public class WeaponObject{
 	public void setRoom(Room room){
 		this.room = room;
 	}
-	
+	 
 	/**
 	 * Gets the room the WeaponObject is contained in
 	 * 
