@@ -1,8 +1,10 @@
 package ui;
 
+import java.awt.BasicStroke;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -19,10 +21,12 @@ public class BoardCanvas extends Canvas{
 	private final int squareSize = 25;
 	public final int numSquare = 25;
 	Square selected = null;
+	Square selectedPlayer = null;
 	Square[][] squares;
 	String[][] map = Board.map;
 	
 	public boolean deselect = false;
+	public boolean deselectP = false;
 	
 	public BoardCanvas(){
 		this.setBackground(Color.BLACK);
@@ -54,6 +58,10 @@ public class BoardCanvas extends Canvas{
 		if(selected != null){
 			drawSelected(g, selected);
 		}
+		
+		if(selectedPlayer != null){
+			drawSelectedPlayer(g,selectedPlayer);
+		}
 	}
 	
 	public void drawNames(Graphics g){
@@ -73,6 +81,20 @@ public class BoardCanvas extends Canvas{
 	
 	public void setSelected(Square s){
 		this.selected = s;
+	}
+	
+	public void setSelectedPlayer(Square s){
+		this.selectedPlayer = s;
+	}
+	
+	public void drawSelectedPlayer(Graphics g, Square s){
+		
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setStroke(new BasicStroke(2));
+		g2.setColor(Color.LIGHT_GRAY);
+		if(deselectP) g2.setColor(Color.BLACK);
+		Point p = s.point;
+		g2.drawRect(p.x*25, p.y*25, squareSize, squareSize);
 	}
 	
 	public void drawSelected(Graphics g, Square s){

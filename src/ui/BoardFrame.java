@@ -46,6 +46,7 @@ public class BoardFrame extends JFrame implements ActionListener, MouseListener 
 	public BoardCanvas boardCanvas;
 	private GameOfCluedo game;
 	public Square selected;
+	public Square selectedPlayer;
 	
 	public ArrayList<JButton> buttons;
 	public JLabel profile;
@@ -181,6 +182,7 @@ public void updateCards(Player player){
 		
 		
 		profile.setText(info);
+		
 		
 	}
 	

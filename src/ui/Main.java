@@ -43,7 +43,8 @@ public class Main {
 	public static boolean start = true;
 	public static boolean endTurn = false;
 	public static int playerNum = 0;
-	public static boolean enter = false;
+	public static boolean enterPrompt = false;
+	public static boolean atDoor = false;
 
 	public static int inputNumber(BoardFrame frame, String message){
 
@@ -128,8 +129,7 @@ public class Main {
 		//game.movePlayer(roll, d, p, players);
 		//user selects a square
 		//check if square is within roll range
-		//if it is, checks if x or y is greater, if x is greater move x spaces first then y else y spaces first
-
+		if(currentRoll == 0 || start) return;
 
 		if(frame.selected != null){
 			while(currentRoll > 0){
@@ -152,12 +152,6 @@ public class Main {
 					frame.selected = null;
 					frame.drawTokens(frame.boardCanvas.getGraphics());
 					return;
-				}else if(diffX + diffY > currentRoll){
-					JOptionPane.showMessageDialog(frame, "Your roll does not take you that far!");
-					frame.boardCanvas.deselect = true;
-					frame.selected = null;
-					frame.drawTokens(frame.boardCanvas.getGraphics());
-					return;
 				}else if(diffX + diffY == 0){
 					frame.drawTokens(frame.boardCanvas.getGraphics());
 					return;
@@ -170,6 +164,7 @@ public class Main {
 					frame.drawTokens(frame.boardCanvas.getGraphics());
 					frame.updateCards(player);
 					currentRoll -= (diffX + diffY);
+					if(frame.getGame().isAtDoor(player)) atDoor = true;
 				}
 
 				break;
@@ -417,31 +412,39 @@ public class Main {
 		while(1 == 1){
 			
 			JOptionPane.showMessageDialog(frame, 
-					"*********************************\n\t\t\t\tTURN"+turn+" \n*********************************\n",
+					"*********************************\n\t\t\t\t           TURN   "+turn+" \n*********************************\n",
 					"", JOptionPane.INFORMATION_MESSAGE);
 
 			for(int n = 0; n < players.size(); n++){
+				frame.boardCanvas.deselectP = false;
+				selectCurrentToken(frame, players.get(n));
 				start = true;
 				endTurn = false;
 				while(!endTurn){
 					game.currentPlayer = players.get(n);					
 					frame.updateCards(game.currentPlayer);
 					frame.repaint();
-
+					
 					if(!start){
 						
 						movePlayer(frame, game.currentPlayer);
-					
-						if(game.isAtDoor(game.currentPlayer) && game.currentPlayer.getRoom() == null){
+						if(atDoor)enterPrompt = false;
+						if(game.isAtDoor(game.currentPlayer) && !enterPrompt && atDoor){
 							Point point = game.getDoor(game.currentPlayer);
 							String rmName = game.getBoard().getRoom(point);
 							Room room = game.getBoard().getRoom(rmName);
 							int answer = JOptionPane.showConfirmDialog(frame, "Do you want to enter "+rmName+"?");
 							
 							if(answer == JOptionPane.YES_OPTION){
+								enterPrompt = true;
+								atDoor = false;
 								currentRoll = 0;
 								game.currentPlayer.setRoom(room);
 								enterRoom(frame, game.currentPlayer);
+								
+							}else{
+								enterPrompt = true;
+								atDoor = false;
 							}
 							
 							
@@ -451,7 +454,10 @@ public class Main {
 					frame.drawTokens(frame.boardCanvas.getGraphics());
 
 				}
-				frame.repaint();
+				deselect(frame);
+				enterPrompt = false;
+				atDoor = false;
+				
 			}
 			frame.repaint();
 			turn++;
@@ -473,6 +479,32 @@ public class Main {
 
 
 
+	}
+
+	private static void selectCurrentToken(BoardFrame frame, Player player) {
+		
+		int x = (int) player.getToken().getPoint().getX();
+		int y = (int) player.getToken().getPoint().getY();
+		
+		if(frame.boardCanvas.squares[x][y] != null){
+			frame.selectedPlayer = frame.boardCanvas.squares[x][y];
+			frame.boardCanvas.setSelectedPlayer(frame.selectedPlayer);
+			frame.boardCanvas.drawSelectedPlayer(frame.boardCanvas.getGraphics(), frame.boardCanvas.selectedPlayer);
+			
+		}
+		
+		
+		
+	}
+	
+	private static void deselect(BoardFrame frame){
+		frame.boardCanvas.deselect = true;
+		frame.selected = null;
+		frame.drawTokens(frame.boardCanvas.getGraphics());
+		frame.boardCanvas.deselectP = true;
+		frame.boardCanvas.selectedPlayer = null;
+		frame.repaint();
+		frame.boardCanvas.repaint();
 	}
 
 	private static void enterRoom(BoardFrame frame, Player currentPlayer) {

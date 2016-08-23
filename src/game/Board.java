@@ -166,7 +166,7 @@ public class Board {
 		entrances.put(new Point(18, 5), "CONSERVATORY");
 		entrances.put(new Point(17, 20), "STUDY");
 		entrances.put(new Point(8, 12), "DINING_ROOM");
-		entrances.put(new Point(6, 16), "DINING_ROOM");
+		entrances.put(new Point(6, 17), "DINING_ROOM");
 		entrances.put(new Point(17,8), "BILLIARD_ROOM");
 		entrances.put(new Point(22, 12), "BILLIARD_ROOM");
 		entrances.put(new Point(20, 12), "LIBRARY");
