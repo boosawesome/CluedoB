@@ -5,8 +5,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import game.*;
@@ -15,6 +19,7 @@ import items.Character.CharacterToken;
 import items.Character;
 import items.Envelope;
 import items.Location;
+import items.Piece;
 import items.Room;
 import items.Room.RoomToken;
 import items.Weapon;
@@ -23,6 +28,7 @@ import items.WeaponObject;
 import moves.Accusation;
 import moves.Suggestion;
 import ui.BoardFrame;
+import ui.Square;
 
 /**
  * Represents a game of cluedo. This contains an internal representation of
@@ -35,7 +41,7 @@ import ui.BoardFrame;
  *
  */
 public class GameOfCluedo {
-	
+
 	/**
 	 * Directions a Player can take/face
 	 * @author Andre L Westerlund
@@ -44,7 +50,7 @@ public class GameOfCluedo {
 	public enum Direction{
 		NORTH,SOUTH,EAST,WEST
 	}
-	
+
 	public boolean state = false;
 	private Board board;
 	private Envelope solution; 
@@ -62,7 +68,7 @@ public class GameOfCluedo {
 	public Player refuter = null; //current Player who refuted a Suggestion
 	public Player currentPlayer = null;
 	public ArrayList<Player> players;
-	
+
 	/**
 	 * Constructs a GameOfCluedo Object
 	 */
@@ -79,7 +85,7 @@ public class GameOfCluedo {
 		/*
 		 * Initialize all the Cards of the Game in their Categories 
 		 */
-		
+
 		characters.add(new Character(CharacterToken.MISS_SCARLETT));
 		characters.add(new Character(CharacterToken.COLONEL_MUSTARD));
 		characters.add(new Character(CharacterToken.MRS_WHITE));
@@ -105,10 +111,10 @@ public class GameOfCluedo {
 		rooms.add(new Room(RoomToken.LIBRARY));
 		rooms.add(new Room(RoomToken.LOUNGE, RoomToken.CONSERVATORY));
 		rooms.add(new Room(RoomToken.STUDY, RoomToken.KITCHEN));
-		
-		
-		 //Fill and Set Locations and Weapon Objects
-		 
+
+
+		//Fill and Set Locations and Weapon Objects
+
 		for(Room rm : rooms){
 			locations.add(new Location(rm));
 		}
@@ -116,18 +122,18 @@ public class GameOfCluedo {
 		for(Weapon wp : weapons){
 			objects.add(new WeaponObject(wp));
 		}
-		
+
 		//randomize Locations and Objects
 
 		Collections.shuffle(locations);
 		Collections.shuffle(objects);
-		
+
 		//place WeaponObjects randomly in a Location (Only one weapon per Location)
 		for(int i = 0; i < objects.size(); i++){
 			locations.get(i).setWeaponObject(objects.get(i));
 			objects.get(i).setRoom(locations.get(i).room);
 		}
-		
+
 		//shuffle categories of Cards
 		Collections.shuffle(characters);
 		Collections.shuffle(weapons);
@@ -169,7 +175,7 @@ public class GameOfCluedo {
 	public Envelope getSolution(){
 		return this.solution;
 	}
-	
+
 	/**
 	 * Moves the Player to a Point on the Board based on DiceRoll and Direction
 	 * 
@@ -203,7 +209,7 @@ public class GameOfCluedo {
 				return; // check if valid movement each time
 			}
 		}
-		
+
 		//set new Location/Point of Player if valid Movement
 		if(checkValidMove(x,y,p, players)){
 			p.setLocation(new Point(x,y));
@@ -214,7 +220,7 @@ public class GameOfCluedo {
 			valid = true;
 		}
 	}
-	
+
 	/**
 	 * Determines if a Player is at the entrance of a Room
 	 * @param p
@@ -228,7 +234,7 @@ public class GameOfCluedo {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Gets the Point (Entrance to the Room) where the Player is on 
 	 * @param p
@@ -339,24 +345,16 @@ public class GameOfCluedo {
 	 * @param p
 	 */
 	public void useStairWell(Room room, Player p, BoardFrame frame){
-		if(p.getRoom() == null){
-			JOptionPane.showMessageDialog(frame, "Cannot Use StairWell when Player "+p.num+" is not in a Room!");
-			return;
-		}else if(!p.getRoom().hasStairWell()){
-			JOptionPane.showMessageDialog(frame, room.picture +" does not have StairWell!");
-			return;
-		}
-		
+	
 		if(p.getRoom().equals(room) && room.hasStairWell()){
 			p.setRoom(null);
 			Room opposite = board.getRoom(room.getOpposite());
-			getLocation(room).removePlayer(p);
-			getLocation(opposite).addPlayer(p);
 			p.setRoom(opposite);
+			this.setToken(frame,frame.getBoard().getCharacterToken(p.getToken().token), opposite);
 			JOptionPane.showMessageDialog(frame, p.getName()+ " used the Stairwell to get from "+ room.getName() +" to "+ opposite.getName());
 		}
 	}
-	
+
 	/**
 	 * Gets a WeaponObject from a given Weapon
 	 * @param weapon
@@ -370,7 +368,7 @@ public class GameOfCluedo {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Gets a Location from a given Room
 	 * @param r
@@ -384,7 +382,7 @@ public class GameOfCluedo {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Runs through Players excluding Player, and checks if a Suggestion can be refuted if not return null  
 	 * @param c
@@ -404,12 +402,12 @@ public class GameOfCluedo {
 			} 
 
 			Collections.shuffle(p.getHand());
-			
+
 			//run through each player's hands
 			for(Card card : p.getHand()){
-				
+
 				//if there is a match return that Card and assign that player to refuter for recording
-				
+
 				if(card instanceof Weapon){
 					Weapon weapon = (Weapon) card;
 
@@ -442,7 +440,7 @@ public class GameOfCluedo {
 
 		return null;
 	}
-	
+
 	/**
 	 * Takes a Suggestion Object and checks among the other players if the Suggestion can be refuted.
 	 * If refuted, the Player is shown the Card and if not will return null and this will mean it is a
@@ -451,20 +449,24 @@ public class GameOfCluedo {
 	 * @param player
 	 * @param players
 	 */
-	public void suggest(Suggestion suggestion, Player player, ArrayList<Player> players){
+	public void suggest(BoardFrame frame, Suggestion suggestion, Player player, ArrayList<Player> players){
 		refuter = null;
 		Character c = suggestion.getCharacter();
 		Weapon w = suggestion.getWeapon();
 		Room r = suggestion.getRoom();
 
-		if(player.getRoom() == null && player.getLocation() != null){
-			System.out.println("ERROR! Cannot make a suggestion if player is not in a Room!");
+
+
+		if(player.getRoom() == null){
+			JOptionPane.showMessageDialog(frame,"ERROR! Cannot make a suggestion if Player "+player.num+" is not in a Room!");
 			return;
 		}
-		if(!player.getRoom().equals(r) && !getLocation(r).hasPlayer(player)){
-			System.out.println("ERROR! Cannot make a suggestion of "+r.getName() + " When "+player.getName()+" is not in "+r.getName());
+		if(!player.getRoom().equals(r)){
+			JOptionPane.showMessageDialog(frame,"ERROR! Cannot make a suggestion of "+r.getName() + " When "+player.getName()+" is not in "+r.getName());
 			return;
 		}
+
+		setToken(frame,c,r);
 
 		//placing the WeaponObject of the Suggestion Object's Weapon in the current Location/Room
 		Location loc = getLocation(r);
@@ -475,19 +477,115 @@ public class GameOfCluedo {
 		Card result = refute(c,w,r, player, players);
 
 		if(refuter != null && result != null){ //Suggestion refuted
-			System.out.println(refuter.getName()+" has refuted your Suggestion");
-			System.out.println("************************************\n\n");
-			System.out.println(refuter.getName()+" has the "+result.getName()+" card");
-			System.out.println("************************************\n\n");
+			String next = "<html>"+refuter.getName()+" has refuted your Suggestion)<br>";
+			next+="************************************<br>";
+			next+= "Player "+refuter.num+": "+refuter.getName()+" has the "+result.getName()+" card<br>";
+			next+="************************************<br></html>";
+
+			JDialog dialog = new JDialog();
+			JLabel label = new JLabel( next,new ImageIcon("src/images/"+result.getPicture()+".jpg"), JLabel.CENTER );
+			dialog.add( label );
+			dialog.pack();
+			dialog.setLocationRelativeTo(frame);
+			dialog.setVisible(true);
+
 		}else if(result == null){//Suggestion not refuted
-			System.out.println("************************************");
-			for(Player play : players){
-				System.out.println(play.getName()+" has not been able to refute your suggestion");
-			}
-			System.out.println("************************************\n\n");
+
+			JOptionPane.showMessageDialog(frame, "All players have not been able to refute your suggestion");
+
 		}
+		frame.drawTokens(frame.boardCanvas.getGraphics());
 	}
-	
+
+	public Player getPlayerFromToken(Character charac){
+		for(Player p : this.players){
+			if(charac.getPicture().equals(p.getToken().token)){
+				return p;
+			}
+		}
+		return null;
+	}
+
+	public void setToken(BoardFrame frame, Character charac, Room room){
+		Player p = getPlayerFromToken(charac);
+		if(p == null){
+
+			for(Piece piece : frame.getBoard().pieces)
+				if(piece.token.equals(charac.getPicture())){
+					Point pos = frame.getBoard().tokenToPos.get(piece.token);
+					Piece token = frame.getBoard().getPiece(piece.token);
+					token.setPoint(pos); 
+					p = new Player("",token,pos);
+					break;
+				}
+
+
+
+
+		}
+
+		if(p.getRoom() == null){
+			int x = (int)p.getToken().getPoint().getX();
+			int y = (int) p.getToken().getPoint().getY();
+			Square s = frame.boardCanvas.squares[x][y];
+			s.setPiece(null);
+			p.setRoom(room);
+			Square destination = getSpace(frame,room);
+			destination.setPiece(p.getToken());
+			frame.repaint();
+			frame.drawTokens(frame.boardCanvas.getGraphics());
+
+
+		}else if(p.getRoom() != null){
+			int x = (int)p.getToken().getPoint().getX();
+			int y = (int) p.getToken().getPoint().getY();
+			p.getRoom().capacity =-1;
+			Square s = frame.boardCanvas.squares[x][y];
+			s.setPiece(null);
+			p.setRoom(room);
+			room.capacity+=1;
+			Square destination = getSpace(frame,room);
+			destination.setPiece(p.getToken());
+			frame.repaint();
+			frame.drawTokens(frame.boardCanvas.getGraphics());
+
+
+		}
+		else if(p.getRoom().equals(room)){
+			return;
+		}
+
+
+
+
+
+
+	}
+
+	public Square getSpace(BoardFrame frame, Room r){
+		ArrayList<Point> points = frame.getBoard().roomSpaces.get(r.getName());
+		for(Point point : points){
+			Square s = getSquare(frame, point);
+			if(!s.hasPiece()){
+				return s;
+			}
+
+		}
+		return null;
+	}
+
+
+	public Square getSquare(BoardFrame frame, Point point){
+		int x = (int) point.getX();
+		int y = (int) point.getY();
+
+		if(frame.boardCanvas.squares[x][y] != null){
+			return frame.boardCanvas.squares[x][y];
+		}
+		return null;
+
+	}
+
 	/**
 	 * Determines the result of the Player's Accusation 
 	 * @param accusation
@@ -495,7 +593,7 @@ public class GameOfCluedo {
 	 * @return
 	 */
 	public boolean accuse(Accusation accusation, Player player){
-		
+
 		Character c = accusation.getCharacter();
 		Weapon w = accusation.getWeapon();
 		Room r = accusation.getRoom();
@@ -511,7 +609,7 @@ public class GameOfCluedo {
 		return false;
 
 	}
-	
+
 	/**
 	 * Gets a Character from a given String
 	 * @param s
@@ -525,7 +623,7 @@ public class GameOfCluedo {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Gets a Weapon from a given String
 	 * @param s
@@ -560,7 +658,7 @@ public class GameOfCluedo {
 		}
 		return null;
 	}
-	
+
 
 
 	/**

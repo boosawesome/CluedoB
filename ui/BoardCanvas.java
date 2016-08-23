@@ -22,7 +22,7 @@ public class BoardCanvas extends Canvas{
 	public final int numSquare = 25;
 	Square selected = null;
 	Square selectedPlayer = null;
-	Square[][] squares;
+	public Square[][] squares;
 	String[][] map = Board.map;
 	
 	public boolean deselect = false;

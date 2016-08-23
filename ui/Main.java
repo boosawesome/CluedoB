@@ -17,7 +17,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -35,6 +37,7 @@ import items.Card;
 import items.Dice;
 import items.Piece;
 import items.Room;
+import items.Weapon;
 
 public class Main {
 
@@ -47,6 +50,7 @@ public class Main {
 	public static boolean enterPrompt = false;
 	public static boolean exitPrompt = false;
 	public static boolean atDoor = false;
+	public static boolean game = false;
 
 	public static int inputNumber(BoardFrame frame, String message){
 
@@ -205,7 +209,15 @@ public class Main {
 		}
 
 		if(action.equals("accuse")){
+			
+			int pane = JOptionPane.showConfirmDialog(frame, "Are you sure you want to Make an Accusation?"); 
+			
+			if(pane == JOptionPane.YES_OPTION){
 			makeAccusation(frame);
+			}
+			else return;
+		
+		
 		}else if(action.equals("suggest")){
 			makeSuggestion(frame);
 		}else if(action.equals("rollDice")){
@@ -235,6 +247,18 @@ public class Main {
 			frame.boardCanvas.setSelected(frame.selected);
 			frame.boardCanvas.repaint();
 
+		}else if(action.equals("stairwell")){
+		
+				if(frame.getGame().currentPlayer.getRoom() == null){
+					JOptionPane.showMessageDialog(frame, "Cannot Use StairWell when Player "+frame.getGame().currentPlayer.num+" is not in a Room!");
+					return;
+				}else if(!frame.getGame().currentPlayer.getRoom().hasStairWell()){
+					JOptionPane.showMessageDialog(frame, frame.getGame().currentPlayer.getRoom().picture +" does not have StairWell!");
+					return;
+				}
+
+				frame.getGame().useStairWell(frame.getGame().currentPlayer.getRoom(), frame.getGame().currentPlayer, frame);
+				frame.drawTokens(frame.boardCanvas.getGraphics());
 		}
 
 
@@ -247,6 +271,12 @@ public class Main {
 		String player, weapon, room;
 		Board board = frame.getBoard();
 		GameOfCluedo game = frame.getGame();
+		
+		if(game.currentPlayer.getRoom() == null){
+			JOptionPane.showMessageDialog(frame,"ERROR! Cannot make a suggestion if Player "+game.currentPlayer.num+" is not in a Room!");
+			return;
+		}
+		frame.drawTokens(frame.boardCanvas.getGraphics());
 
 		Object[] ppossibilities = { "MISS_SCARLETT", "PROFESSOR_PLUM", "MRS_PEACOCK", "THE_REVEREND_GREEN",
 				"COLONEL_MUSTARD", "MRS_WHITE" };
@@ -270,7 +300,8 @@ public class Main {
 
 		Suggestion suggest = new Suggestion(board.getCharacter(player), board.getWeapon(weapon), board.getRoom(room));//cause I'm not 100% up to speed on how they're constructed
 
-		game.suggest(suggest, game.currentPlayer, game.players);
+		game.suggest(frame, suggest, game.currentPlayer, game.players);
+		frame.drawTokens(frame.boardCanvas.getGraphics());
 
 	}
 
@@ -299,9 +330,48 @@ public class Main {
 				JOptionPane.PLAIN_MESSAGE, null, rpossibilities, "");
 		if(room.equals(null)){return;}
 
-		Accusation accuse = new Accusation(board.getCharacter(player), board.getWeapon(weapon), board.getRoom(room));//have a go at fixing these
-
-		game.accuse(accuse, game.currentPlayer);
+		Accusation accuse = new Accusation(board.getCharacter(player), board.getWeapon(weapon), board.getRoom(room));
+		items.Character cs = game.getSolution().getCharacter();
+		Weapon ws = game.getSolution().getWeapon();
+		Room rs = game.getSolution().getRoom();
+		
+		String csName = cs.getName();
+		String wsName = ws.getName();
+		String rsName = rs.getName();
+		
+		if(!game.accuse(accuse, game.currentPlayer)){
+			game.currentPlayer.lose();
+			int num = game.currentPlayer.num;
+			String acc = "\tPlayer "+num+" has Made An Accusation!!!!!\n";
+			acc+= "Player "+num+" Choices:\nCharacter: "+player+"\nWeapon: "+weapon+"\nRoom: "+room;
+			
+			String result = "\tCluedo Solution\nCharacter : "+csName+"\nWeapon :"+wsName+"\nRoom: "+rsName+"\n";
+			
+			JOptionPane.showMessageDialog(frame,acc);
+			JOptionPane.showMessageDialog(frame,result);
+			JOptionPane.showMessageDialog(frame,"PLAYER "+num+":  "+game.currentPlayer.getName()+" has been ELIMINATED!!!!!");
+			endTurn = true;
+		}else{
+			int num = game.currentPlayer.num;
+			String acc = "\tPlayer "+num+" has Made An Accusation!!!!!\n";
+			acc+= "Player "+num+" Choices:\nCharacter: "+player+"\nWeapon: "+weapon+"\nRoom: "+room;
+			
+			String result = "\tCluedo Solution\nCharacter : "+csName+"\nWeapon :"+wsName+"\nRoom: "+rsName+"\n";
+			
+			JOptionPane.showMessageDialog(frame,acc);
+			JOptionPane.showMessageDialog(frame,result);
+			
+			JDialog dialog = new JDialog();
+			JLabel label = new JLabel("<html>GAME OVER!!!!!!<br>Player "+num+" has Won the GAME!!!!</html>");
+			dialog.add( label );
+			dialog.pack();
+			dialog.setLocationRelativeTo(frame);
+			dialog.setVisible(true);
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			Main.game = true;
+			
+			
+		}
 
 	}
 
@@ -422,16 +492,39 @@ public class Main {
 					"", JOptionPane.INFORMATION_MESSAGE);
 
 			for(int n = 0; n < players.size(); n++){
+				if(gameOver(frame)){
+					game.state = true;
+					JDialog dialog = new JDialog();
+					JLabel label = new JLabel("<html>ALL PLAYERS HAVE BEEN ELIMINATED!!!</html><br>GAME OVER!!!!!!");
+					dialog.add( label );
+					dialog.pack();
+					dialog.setLocationRelativeTo(frame);
+					dialog.setVisible(true);
+					System.exit(0);
+				}
+				if(!players.get(n).getActive()) continue;
 				frame.boardCanvas.deselectP = false;
 				selectCurrentToken(frame, players.get(n));
 				start = true;
 				endTurn = false;
 				while(!endTurn){
+					if(gameOver(frame)){
+						game.state = true;
+						JDialog dialog = new JDialog();
+						JLabel label = new JLabel("<html>ALL PLAYERS HAVE BEEN ELIMINATED!!!</html><br>GAME OVER!!!!!!");
+						dialog.add( label );
+						dialog.pack();
+						dialog.setLocationRelativeTo(frame);
+						dialog.setVisible(true);
+						
+					}
 					game.currentPlayer = players.get(n);					
 					frame.updateCards(game.currentPlayer);
 					frame.repaint();
 		
-					
+					if(Main.game){ 
+						System.exit(0);
+					}
 					//exit room
 					if(game.currentPlayer.getRoom() != null && start && !exitPrompt){
 						Room room = game.currentPlayer.getRoom();
@@ -440,6 +533,7 @@ public class Main {
 						int answer = JOptionPane.showConfirmDialog(frame, "Do you want to exit "+rmName+"?");
 						if(answer == JOptionPane.YES_OPTION){
 						exitRoom(frame, game.currentPlayer);
+						exitPrompt = true;
 						start = true;
 						}else{
 							exitPrompt = true;
@@ -514,6 +608,8 @@ public class Main {
 
 
 	}
+	 
+	
 
 	private static void exitRoom(BoardFrame frame, Player currentPlayer) {
 		int x = currentPlayer.getToken().getPoint().x;
@@ -591,6 +687,16 @@ public class Main {
 		
 		
 		
+	}
+	
+	private static boolean gameOver(BoardFrame frame){
+		
+		for(Player p : frame.getGame().players){
+			if(p.getActive()){
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	private static void deselect(BoardFrame frame){

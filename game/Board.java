@@ -183,16 +183,36 @@ public class Board {
 		
 		//slots in rooms that a token or weapon object can occupy
 		roomSpaces.put("LOUNGE", new ArrayList<Point>(Arrays.asList(new Point(0,23), new Point(1,23), new Point(2,23), new Point(3,23), new Point(4,23), new Point(5,23))));
-		roomSpaces.put("KITCHEN", new ArrayList<Point>(Arrays.asList(new Point(0,0), new Point(1,0), new Point(2,0), new Point(3,0), new Point(4,0), new Point(0,1))));
-		roomSpaces.put("CONSERVATORY", new ArrayList<Point>(Arrays.asList(new Point(19,0), new Point(20,0), new Point(21,0), new Point(22,0), new Point(23,0), new Point(19,1))));
-		roomSpaces.put("STUDY", new ArrayList<Point>(Arrays.asList(new Point(19,24), new Point(20,24), new Point(21,24), new Point(22,24), new Point(23,24), new Point(24,24))));
+		roomSpaces.put("KITCHEN", new ArrayList<Point>(Arrays.asList(new Point(0,1), new Point(1,1), new Point(2,1), new Point(3,1), new Point(4,1), new Point(0,2))));
+		roomSpaces.put("CONSERVATORY", new ArrayList<Point>(Arrays.asList(new Point(19,1), new Point(20,1), new Point(21,1), new Point(22,1), new Point(23,1), new Point(19,2))));
+		roomSpaces.put("STUDY", new ArrayList<Point>(Arrays.asList(new Point(19,23), new Point(20,23), new Point(21,24), new Point(22,23), new Point(23,23))));
 		roomSpaces.put("DINING_ROOM", new ArrayList<Point>(Arrays.asList(new Point(0,10), new Point(0,11), new Point(0,12), new Point(0,13), new Point(0,14), new Point(1,10))));
-		roomSpaces.put("HALL", new ArrayList<Point>(Arrays.asList(new Point(9,23), new Point(10,23), new Point(11,23), new Point(12,23), new Point(13,23), new Point(14,23))));
-		roomSpaces.put("BILLIARD_ROOM", new ArrayList<Point>(Arrays.asList(new Point(24,8), new Point(24,9), new Point(24,10), new Point(24,11), new Point(24,12))));
+		roomSpaces.put("HALL", new ArrayList<Point>(Arrays.asList(new Point(9,23),  new Point(10,23), new Point(11,23), new Point(12,23), new Point(13,23), new Point(14,23))));
+		roomSpaces.put("BILLIARD_ROOM", new ArrayList<Point>(Arrays.asList(new Point(23,8), new Point(23,9), new Point(23,10), new Point(23,11))));
 		roomSpaces.put("BALLROOM", new ArrayList<Point>(Arrays.asList(new Point(8,2), new Point(9,2), new Point(10,2), new Point(11,2), new Point(12,2), new Point(13,2))));
 		roomSpaces.put("LIBRARY", new ArrayList<Point>(Arrays.asList(new Point(14,23), new Point(15,23), new Point(16,23), new Point(17,23), new Point(18,23))));
 	
 	}
+	
+	public Character getCharacterToken(String token){
+		switch(token){
+		case "Miss Scarlett":
+			return getCharacter("MISS_SCARLETT");
+		case "Colonel Mustard":
+			return getCharacter("COLONEL_MUSTARD");
+		case "Mrs White":
+			return getCharacter("MRS_WHITE");
+		case "The Reverend Green":
+			return getCharacter("THE_REVEREND_GREEN");
+		case "Mrs Peacock":
+			return getCharacter("MRS_PEACOCK");
+		case "Professor Plum":
+			return getCharacter("PROFESSOR_PLUM");
+		}
+		return null;
+		
+	}
+	
 	
 	/**
 	 * Gets a Room from a given String, null if not found

@@ -282,7 +282,7 @@ public class TextClient {
 	 * @param board
 	 */
 	private static void makeSuggestion(Suggestion suggest, Player player, ArrayList<Player> players, GameOfCluedo board) {
-		board.suggest(suggest, player, players);
+		board.suggest(null,suggest, player, players);
 
 	}
 	

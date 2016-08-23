@@ -7,6 +7,9 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import game.Board;
+import items.Character.CharacterToken;
+
 public class Piece { 
 
 	public Image picture;

@@ -117,6 +117,12 @@ public class BoardFrame extends JFrame implements ActionListener, MouseListener 
 		endTurn.addActionListener(this);
 		endTurn.setPreferredSize(new Dimension(100,30));
 		buttons.add(endTurn);
+		
+		JButton takeStairs = new JButton("Take Stairwell");
+		takeStairs.setActionCommand("stairwell");
+		takeStairs.addActionListener(this);
+		takeStairs.setPreferredSize(new Dimension(100,30));
+		buttons.add(takeStairs);
 
 		rollDice.setActionCommand("rollDice");
 		rollDice.addActionListener(this);
@@ -126,6 +132,7 @@ public class BoardFrame extends JFrame implements ActionListener, MouseListener 
 
 		bottomPanel.add(suggest);
 		bottomPanel.add(accuse);
+		bottomPanel.add(takeStairs);
 		bottomPanel.add(rollDice);
 		bottomPanel.add(endTurn);
 		bottomPanel.add(profile);
